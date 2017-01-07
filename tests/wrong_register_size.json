@@ -1,0 +1,11 @@
+{
+	"registers":
+	{
+		"wrong_reg_size":
+		{
+			"offset": "0x123",
+			"size":	"0xF"
+		}
+	}
+}
+	

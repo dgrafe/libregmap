@@ -1,0 +1,13 @@
+{
+	"registers":
+	{
+		"busy_ready_mask":
+		{
+			"offset": "0x0",
+			"size":	"0x4",
+			"busy_mask": "0x01",
+			"ready_mask": "0x10"
+		}
+	}
+}
+	

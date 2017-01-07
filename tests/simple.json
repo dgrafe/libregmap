@@ -1,0 +1,32 @@
+{
+	"registers":
+	{
+		"test1":
+		{
+			"offset": "0",
+			"size":	"1"
+		},
+		"test2":
+		{
+			"offset": "1",
+			"size":	"2"
+		},
+		"test3":
+		{
+			"offset": "0x3",
+			"size":	"4"
+		},
+		"bitmask_test":
+		{
+			"offset": "7",
+			"size": "4",
+			"bitmasks":
+			{
+				"ALL_SET": "0xffffffff",
+				"ALL_UNSET": "0",
+				"124": "7"
+			}
+		}
+	}
+}
+	

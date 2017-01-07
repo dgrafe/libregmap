@@ -1,0 +1,14 @@
+{
+	"registers": {
+		"PHYAR": {
+			"size": "4",
+			"offset": "0x60",
+			"bitmasks": {
+				"PMAPMD_STAT1_ADDRESS": "0x10000",
+				"PMAPMD_STAT1_RECEIVE_LINK": "0x4",
+				"PMAPMD_STAT1_FAULT_COND": "0x80"
+			},
+			"ready_mask": "0x80000000"
+		}
+	}
+}
