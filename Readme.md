@@ -2,9 +2,9 @@
 
 This library, written in C++11, implements a generic interface for accessing Memory- or IO-Mapped registers from the linux userspace.
 
-The structure of the register map (for instance offsets, sizes, bitmasks) is defined in external json file. So your code will be kept clean of such low level details.
+The structure of the register map (for instance offsets, sizes, bitmasks) is defined in an external json file. So your code will be kept clean of such low level details.
 
-The definition file is needed when instantiating the register map. From this map object you can access all the defined register objects which represent the mapped register including the bitmasks and feature some operators, helper functions, etc.
+The definition file is needed when instantiating the register map. From this map object you can access all the defined register objects which represent the mapped register including the bitmasks and which feature some operators, helper functions, etc.
 
 The intention of this library is to
 * provide an OOP interface to the register maps (Abstraction)
@@ -43,24 +43,23 @@ The code for reading the link status then boils down to
 #include "regmap.hpp"
 
 #include <iostream>
-#include <string>
 
 int main(int argc, char** argv) {
 
-        // Map BAR2 of the RTL8168 and get the register object for the PHYAR register
-        regmap::pci::MemMapped memmap(regmap::pci::PCI_ID(0x10ec, 0x8168), "rtl8168.json", regmap::pci::BAR2);
-        auto phyar = memmap.get<regmap::Register32_t>("PHYAR");
+  // Map BAR2 of the RTL8168 and get the register object for the PHYAR register
+  regmap::pci::MemMapped memmap(regmap::pci::PCI_ID(0x10ec, 0x8168), "rtl8168.json", regmap::pci::BAR2);
+  auto phyar = memmap.get<regmap::Register32_t>("PHYAR");
 
-        // Initiate a read of the PHY's clause 22 STAT1 register via MDIO
-        // and wait until the data is available in PHYAR
-        phyar = phyar["PMAPMD_STAT1_ADDRESS"];
-        phyar.wait(100);
+  // Initiate a read of the PHY's clause 22 STAT1 register via MDIO
+  // and wait until the data is available in PHYAR
+  phyar = phyar["PMAPMD_STAT1_ADDRESS"];
+  phyar.wait(100);
 
-        std::cout << "PHYAR content..: " << std::hex << phyar << std::endl;
-        std::cout << "Link status....: " << (phyar.is_set("PMAPMD_STAT1_RECEIVE_LINK") ? "UP" : "DOWN") << std::endl;
-        std::cout << "Fault condition: " << std::boolalpha << phyar.is_set("PMAPMD_STAT1_FAULT_COND")  << std::endl;
+  std::cout << "PHYAR content..: " << std::hex << phyar << std::endl;
+  std::cout << "Link status....: " << (phyar.is_set("PMAPMD_STAT1_RECEIVE_LINK") ? "UP" : "DOWN") << std::endl;
+  std::cout << "Fault condition: " << std::boolalpha << phyar.is_set("PMAPMD_STAT1_FAULT_COND")  << std::endl;
 
-        return 0;
+  return 0;
 }
 ```
 
