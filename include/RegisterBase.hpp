@@ -21,8 +21,6 @@
 #include <stdexcept>
 #include <iostream>
 #include <map>
-#include <thread>
-#include <chrono>
 #include "IRegBackend.hpp"
 
 namespace regmap {
@@ -217,60 +215,17 @@ public:
 
 	// block until the busy mask is cleared
 	inline void work() { this->work(-1); }
-	bool work(int timeout_ms) {
-
-		if (m_uBusyMask == 0)
-			throw std::runtime_error("No busy mask set for register " + m_sRegName);
-
-		auto start = std::chrono::high_resolution_clock::now();
-		while(this->is_set(m_uBusyMask)) {
-			auto end = std::chrono::high_resolution_clock::now();
-			std::chrono::duration<double, std::milli> elapsed = end-start;
-			if (timeout_ms && elapsed.count() > timeout_ms)
-				return false;
-
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		}
-
-		return true;
-	}
+	bool work(int timeout_ms);
 
 	// block until the ready mask is set
 	inline void wait() { this->wait(-1); }
-	bool wait(int timeout_ms) {
-		
-		if (m_uReadyMask == 0)
-			throw std::runtime_error("No ready mask set for register " + m_sRegName);
-
-		auto start = std::chrono::high_resolution_clock::now();
-		while(!this->is_set(m_uReadyMask)) {
-			auto end = std::chrono::high_resolution_clock::now();
-			std::chrono::duration<double, std::milli> elapsed = end-start;
-			if (timeout_ms && elapsed.count() > timeout_ms)
-				return false;
-
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		}
-
-		return true;
-	}
+	bool wait(int timeout_ms);
 
 	// bitmask accessor
-	T operator[](const std::string &name) {
+	T operator[](const std::string &name);
 
-		if (m_oBitmasks.end() == m_oBitmasks.find(name))
-			throw std::runtime_error("Bitmap not defined: " + name);
-
-		return m_oBitmasks[name];
-	}
-
-	void addBitmask(const std::string &name, T mask) {
+	void addBitmask(const std::string &name, T mask);
 		
-		if (m_oBitmasks.end() != m_oBitmasks.find(name))
-			throw std::runtime_error("Bitmap already defined: " + name);
-
-		m_oBitmasks[name] = mask;
-	}
 
 protected:
 	std::string			m_sRegName;

@@ -41,7 +41,6 @@ The resulting register definition file:
 The code for reading the link status then boils down to
 ``` c++
 #include "regmap.hpp"
-
 #include <iostream>
 
 int main(int argc, char** argv) {
