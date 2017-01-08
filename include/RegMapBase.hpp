@@ -65,10 +65,10 @@ private:
 		for (auto &node : pTree.get_child("registers")) {
 
 			std::string key = node.first;
-			unsigned int offset = static_cast<unsigned int>(strtol(node.second.get<std::string>("offset").c_str(), NULL, 0));
-			unsigned int size = static_cast<unsigned int>(strtol(node.second.get<std::string>("size").c_str(), NULL, 0));
-			unsigned int busy_mask = static_cast<unsigned int>(strtol(node.second.get<std::string>("busy_mask", "0").c_str(), NULL, 0));
-			unsigned int ready_mask = static_cast<unsigned int>(strtol(node.second.get<std::string>("ready_mask", "0").c_str(), NULL, 0));
+			unsigned int offset = static_cast<unsigned int>(strtoul(node.second.get<std::string>("offset").c_str(), NULL, 0));
+			unsigned int size = static_cast<unsigned int>(strtoul(node.second.get<std::string>("size").c_str(), NULL, 0));
+			unsigned int busy_mask = static_cast<unsigned int>(strtoul(node.second.get<std::string>("busy_mask", "0").c_str(), NULL, 0));
+			unsigned int ready_mask = static_cast<unsigned int>(strtoul(node.second.get<std::string>("ready_mask", "0").c_str(), NULL, 0));
 			switch (size) {
 				case 1:
 				m_oRegisters[key] = Register8_t(key, m_oRegBackend, offset, static_cast<std::uint8_t>(busy_mask), static_cast<std::uint8_t>(ready_mask));
@@ -92,7 +92,7 @@ private:
 				for (auto &bitmask : node.second.get_child("bitmasks")) {
 
 					std::string maskName = bitmask.first;
-					long value = strtol(bitmask.second.data().c_str(), NULL, 0);
+					long value = strtoul(bitmask.second.data().c_str(), NULL, 0);
 
 					switch (size) {
 						case 1:
