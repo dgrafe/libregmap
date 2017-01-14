@@ -50,6 +50,7 @@ IOMapped::IOMapped(const BDF &bdf, const std::string &defFile, const eBARs &bar)
 	m_oRegBackend = m_oRegBackendFile;
 }
 
+
 PCICommon::PCICommon(const PCI_ID &pciID, unsigned char instance) {
 
 	boost::filesystem::path p("/sys/bus/pci/devices/");
@@ -107,6 +108,59 @@ void PCICommon::closeDeleter(int* fd) {
 	delete fd;
 }
 
+std::shared_ptr<std::fstream> PCICommon::sysfsEntry(const std::string &entry, std::ios_base::openmode mode) {
+
+	std::shared_ptr<std::fstream> f = std::make_shared<std::fstream>(m_sSysFSPath + entry, mode);
+	if (!f->is_open())
+		throw std::runtime_error("sysfs is missing entry " + entry);
+
+	return f;
+}
+
+
+bool PCICommon::isEnabled() {
+
+	long enableCount = 0;
+	*PCICommon::sysfsEntry("enable") >> enableCount;
+
+	return enableCount > 0;
+}
+
+void PCICommon::enableDevice() {
+
+	*PCICommon::sysfsEntry("enable", std::ios_base::out) << std::string("1");
+}
+
+void PCICommon::disableDevice() {
+
+	auto file = PCICommon::sysfsEntry("enable", std::ios_base::out);
+	while (PCICommon::isEnabled())
+		*file << std::string("0");
+}
+
+void PCICommon::removeDevice() {
+
+	*PCICommon::sysfsEntry("remove", std::ios_base::out) << std::string("1");
+}
+
+void PCICommon::rescanDevice() {
+
+	*PCICommon::sysfsEntry("rescan", std::ios_base::out) << std::string("1");
+}
+
+void PCICommon::resetDevice() {
+
+	*PCICommon::sysfsEntry("reset", std::ios_base::out) << std::string("1");
+}
+
+void PCICommon::rescanBus() {
+
+	std::fstream f("/sys/bus/pci/rescan", std::ios_base::out);
+	if (!f.is_open())
+		throw std::runtime_error("Unable to rescan the pci bus");
+
+	f << std::string("1");
+}
 
 std::size_t PCICommon::barSize(const eBARs &bar) {
 	

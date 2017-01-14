@@ -17,6 +17,7 @@
 #ifndef __REGMAP_PCI__
 #define __REGMAP_PCI__
 
+#include <fstream>
 #include "IRegBackend.hpp"
 #include "RegMapBase.hpp"
 
@@ -60,8 +61,11 @@ public:
 	PCICommon(const BDF &bdf);
 	bool isEnabled();
 	void enableDevice();
+	void disableDevice();
 	void removeDevice();
 	void rescanDevice();
+	void resetDevice();
+	static void rescanBus();
 
 	std::size_t barSize(const eBARs &bar);
 
@@ -72,6 +76,7 @@ protected:
 private:
 	static void munmapDeleter(void* addr, std::size_t length);
 	static void closeDeleter(int* fd);
+	std::shared_ptr<std::fstream> sysfsEntry(const std::string &entry, std::ios_base::openmode mode = std::ios_base::in);
 	std::string m_sSysFSPath;
 };
 
