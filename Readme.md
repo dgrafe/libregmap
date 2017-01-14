@@ -19,7 +19,7 @@ The intention of this library is to
 * These registers can be accessed via the PHYAR register from the register map at offset 0x60
 * The lower 16 bit of PHYAR represet the data to be read/written via MDIO
 * The 5 bits [20-16] specify the Clause 22 register to be read/written
-* Bit 31 has to be set to 0 for reads and will be set to 1 as soon as the Clause 22 register has bee read and the data is available.
+* Bit 31 has to be set to 0 for reads and will be set to 1 as soon as the Clause 22 register has been read and the data is available.
 
 The resulting register definition file:
 ``` json
@@ -38,7 +38,7 @@ The resulting register definition file:
         }
 }
 ```
-The code for reading the link status then boils down to
+The code for reading the link status then boils down to:
 ``` c++
 #include "regmap.hpp"
 #include <iostream>
@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
   // Initiate a read of the PHY's clause 22 STAT1 register via MDIO
   // and wait until the data is available in PHYAR
   phyar = phyar["PMAPMD_STAT1_ADDRESS"];
-  phyar.wait(100);
+  phyar.wait(std::chrono::milliseconds(100));
 
   std::cout << "PHYAR content..: " << std::hex << phyar << std::endl;
   std::cout << "Link status....: " << (phyar.is_set("PMAPMD_STAT1_RECEIVE_LINK") ? "UP" : "DOWN") << std::endl;

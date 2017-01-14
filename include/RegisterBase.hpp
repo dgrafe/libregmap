@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <stdexcept>
 #include <iostream>
+#include <chrono>
 #include <map>
 #include "IRegBackend.hpp"
 
@@ -214,12 +215,14 @@ public:
 	}
 
 	// block until the busy mask is cleared
-	inline void work() { this->work(-1); }
-	bool work(int timeout_ms);
+	inline void work() { this->work(std::chrono::milliseconds(0)); }
+	template <class U = std::chrono::milliseconds>
+	bool work(const U &timeout);
 
 	// block until the ready mask is set
-	inline void wait() { this->wait(-1); }
-	bool wait(int timeout_ms);
+	inline void wait() { this->wait(std::chrono::milliseconds(0)); }
+	template <class U = std::chrono::milliseconds>
+	bool wait(const U &timeout);
 
 	// bitmask accessor
 	T operator[](const std::string &name);

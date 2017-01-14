@@ -19,17 +19,17 @@ BOOST_AUTO_TEST_CASE(ready_mask_tests) {
 
 		testreg = 0x10;
 		// it returns true if mask is set
-		BOOST_CHECK_EQUAL(testreg.wait(10), true);
+		BOOST_CHECK_EQUAL(testreg.wait(std::chrono::milliseconds(10)), true);
 
 		testreg = 0x0;
 		// it times out if mask is not set in time
-		BOOST_CHECK_EQUAL(testreg.wait(10), false);
+		BOOST_CHECK_EQUAL(testreg.wait(std::chrono::milliseconds(10)), false);
 
 		// a somewhat more realistic test with a thread setting the mask
 		// while blocking on the wait
 		testreg = 0x0;
 		std::thread setter(setFlag, testreg, 0x10, 30);
-		BOOST_CHECK_EQUAL(testreg.wait(100), true);
+		BOOST_CHECK_EQUAL(testreg.wait(std::chrono::milliseconds(100)), true);
 		setter.join();
 }
 
@@ -40,17 +40,17 @@ BOOST_AUTO_TEST_CASE(busy_mask_tests) {
 
 		testreg = 0x00;
 		// it returns true when mask is unset
-		BOOST_CHECK_EQUAL(testreg.work(10), true);
+		BOOST_CHECK_EQUAL(testreg.work(std::chrono::milliseconds(10)), true);
 
 		testreg = 0x01;
 		// it times out if mask is not unsset in time
-		BOOST_CHECK_EQUAL(testreg.work(10), false);
+		BOOST_CHECK_EQUAL(testreg.work(std::chrono::milliseconds(10)), false);
 
 		// a somewhat more realistic test with a thread setting the mask
 		// while blocking on the wait
 		testreg = 0x01;
 		std::thread setter(setFlag, testreg, 0x00, 30);
-		BOOST_CHECK_EQUAL(testreg.work(100), true);
+		BOOST_CHECK_EQUAL(testreg.work(std::chrono::milliseconds(100)), true);
 		setter.join();
 }
 

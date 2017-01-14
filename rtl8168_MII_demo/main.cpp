@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
 	// Initiate a read of the PHY's clause 22 STAT1 register via MDIO
 	// and wait until the data is available in PHYAR
 	phyar = phyar["PMAPMD_STAT1_ADDRESS"];
-	phyar.wait(100);
+	phyar.wait(std::chrono::milliseconds(100));
 
 	std::cout << "PHYAR content..: " << std::hex << phyar << std::endl;
 	std::cout << "Link status....: " << (phyar.is_set("PMAPMD_STAT1_RECEIVE_LINK") ? "UP" : "DOWN") << std::endl;

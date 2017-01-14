@@ -21,7 +21,8 @@
 namespace regmap {
 
 template <class T>
-bool RegisterBase<T>::wait(int timeout_ms) {
+template <class U>
+bool RegisterBase<T>::wait(const U &timeout) {
 		
 	if (m_uReadyMask == 0)
 		throw std::runtime_error("No ready mask set for register " + m_sRegName);
@@ -29,18 +30,19 @@ bool RegisterBase<T>::wait(int timeout_ms) {
 	auto start = std::chrono::high_resolution_clock::now();
 	while(!this->is_set(m_uReadyMask)) {
 		auto end = std::chrono::high_resolution_clock::now();
-		std::chrono::duration<double, std::milli> elapsed = end-start;
-		if (timeout_ms && elapsed.count() > timeout_ms)
+		U elapsed = std::chrono::duration_cast<U>(end-start);
+		if (timeout.count() && elapsed.count() > timeout.count())
 			return false;
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		std::this_thread::sleep_for(U(1));
 	}
 
 	return true;
 }
 
 template <class T>
-bool RegisterBase<T>::work(int timeout_ms) {
+template <class U>
+bool RegisterBase<T>::work(const U &timeout) {
 
 	if (m_uBusyMask == 0)
 		throw std::runtime_error("No busy mask set for register " + m_sRegName);
@@ -48,11 +50,11 @@ bool RegisterBase<T>::work(int timeout_ms) {
 	auto start = std::chrono::high_resolution_clock::now();
 	while(this->is_set(m_uBusyMask)) {
 		auto end = std::chrono::high_resolution_clock::now();
-		std::chrono::duration<double, std::milli> elapsed = end-start;
-		if (timeout_ms && elapsed.count() > timeout_ms)
+		U elapsed = std::chrono::duration_cast<U>(end-start);
+		if (timeout.count() && elapsed.count() > timeout.count())
 			return false;
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		std::this_thread::sleep_for(U(1));
 	}
 
 	return true;
@@ -75,6 +77,36 @@ void RegisterBase<T>::addBitmask(const std::string &name, T mask) {
 
 	m_oBitmasks[name] = mask;
 }
+
+template bool RegisterBase<std::uint8_t>::work(const std::chrono::nanoseconds&);
+template bool RegisterBase<std::uint8_t>::work(const std::chrono::microseconds&);
+template bool RegisterBase<std::uint8_t>::work(const std::chrono::milliseconds&);
+template bool RegisterBase<std::uint8_t>::work(const std::chrono::seconds&);
+
+template bool RegisterBase<std::uint8_t>::wait(const std::chrono::nanoseconds&);
+template bool RegisterBase<std::uint8_t>::wait(const std::chrono::microseconds&);
+template bool RegisterBase<std::uint8_t>::wait(const std::chrono::milliseconds&);
+template bool RegisterBase<std::uint8_t>::wait(const std::chrono::seconds&);
+
+template bool RegisterBase<std::uint16_t>::work(const std::chrono::nanoseconds&);
+template bool RegisterBase<std::uint16_t>::work(const std::chrono::microseconds&);
+template bool RegisterBase<std::uint16_t>::work(const std::chrono::milliseconds&);
+template bool RegisterBase<std::uint16_t>::work(const std::chrono::seconds&);
+
+template bool RegisterBase<std::uint16_t>::wait(const std::chrono::nanoseconds&);
+template bool RegisterBase<std::uint16_t>::wait(const std::chrono::microseconds&);
+template bool RegisterBase<std::uint16_t>::wait(const std::chrono::milliseconds&);
+template bool RegisterBase<std::uint16_t>::wait(const std::chrono::seconds&);
+
+template bool RegisterBase<std::uint32_t>::work(const std::chrono::nanoseconds&);
+template bool RegisterBase<std::uint32_t>::work(const std::chrono::microseconds&);
+template bool RegisterBase<std::uint32_t>::work(const std::chrono::milliseconds&);
+template bool RegisterBase<std::uint32_t>::work(const std::chrono::seconds&);
+
+template bool RegisterBase<std::uint32_t>::wait(const std::chrono::nanoseconds&);
+template bool RegisterBase<std::uint32_t>::wait(const std::chrono::microseconds&);
+template bool RegisterBase<std::uint32_t>::wait(const std::chrono::milliseconds& timeout);
+template bool RegisterBase<std::uint32_t>::wait(const std::chrono::seconds&);
 
 template class RegisterBase<std::uint8_t>;
 template class RegisterBase<std::uint16_t>;
