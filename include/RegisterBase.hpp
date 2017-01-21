@@ -39,12 +39,14 @@ public:
 		IRegBackend& regBackend,
 		unsigned int offset,
 		T busy_mask,
-		T ready_mask)
+		T ready_mask,
+		T access_mask)
 	: m_sRegName(regName),
 	  m_oRegBackend(regBackend),
 	  m_uOffset(offset),
 	  m_uBusyMask(busy_mask),
-	  m_uReadyMask(ready_mask) {}
+	  m_uReadyMask(ready_mask),
+	  m_uAccessMask(access_mask) {}
 
 	const std::string& getName() {
 		return m_sRegName;
@@ -54,128 +56,136 @@ public:
 		return m_uOffset;
 	}
 
+	void set(const T& value) {
+		m_oRegBackend.set(m_uOffset, value & m_uAccessMask);
+	}
+
+	T get() const {
+		return (m_oRegBackend.get<T>(m_uOffset) & m_uAccessMask);
+	}
+
 	// register access
 	RegisterBase<T>& operator=(T value) {
-		m_oRegBackend.set(m_uOffset, value);
+		this->set(value);
 		return *this;
 	}
 
 	explicit operator T() const {
-		return m_oRegBackend.get<T>(m_uOffset);
+		return this->get();
 	}
 
 	// operator overloading
 	RegisterBase<T> operator^=(const T &mask) {
-		T tmp = m_oRegBackend.get<T>(m_uOffset);
+		T tmp = this->get();
 		tmp ^= mask;
-		m_oRegBackend.set(m_uOffset, tmp);
+		this->set(tmp);
 		return *this;
 	}
 
 	T operator^(const T &mask) const {
-		T tmp = m_oRegBackend.get<T>(m_uOffset);
+		T tmp = this->get();
 		return tmp ^ mask;
 	}
 	
 	T operator^(const typename std::make_signed<T>::type &mask) const {
-		T tmp = m_oRegBackend.get<T>(m_uOffset);
+		T tmp = this->get();
 		return tmp ^ mask;
 	}
 
 	RegisterBase<T> operator|=(const T &mask) {
-		T tmp = m_oRegBackend.get<T>(m_uOffset);
+		T tmp = this->get();
 		tmp |= mask;
-		m_oRegBackend.set(m_uOffset, tmp);
+		this->set(tmp);
 		return *this;
 	}
 
 	T operator|(const T &mask) const {
-		T tmp = m_oRegBackend.get<T>(m_uOffset);
+		T tmp = this->get();
 		return tmp | mask;
 	}
 	
 	T operator|(const typename std::make_signed<T>::type &mask) const {
-		T tmp = m_oRegBackend.get<T>(m_uOffset);
+		T tmp = this->get();
 		return tmp | mask;
 	}
 
 	RegisterBase<T> operator&=(const T &mask) {
-		T tmp = m_oRegBackend.get<T>(m_uOffset);
+		T tmp = this->get();
 		tmp &= mask;
-		m_oRegBackend.set(m_uOffset, tmp);
+		this->set(tmp);
 		return *this;
 	}
 	
 	T operator&(const T &mask) const {
-		T tmp = m_oRegBackend.get<T>(m_uOffset);
+		T tmp = this->get();
 		return tmp & mask;
 	}
 	
 	T operator&(const typename std::make_signed<T>::type &mask) const {
-		T tmp = m_oRegBackend.get<T>(m_uOffset);
+		T tmp = this->get();
 		return tmp & mask;
 	}
 	
 	T operator~() const {
-		return ~m_oRegBackend.get<T>(m_uOffset);
+		return ~this->get();
 	}
 	
 	T operator<<(const T &steps) const {
-		T tmp = m_oRegBackend.get<T>(m_uOffset);
+		T tmp = this->get();
 		return tmp << steps;
 	}
 
 	T operator<<(const typename std::make_signed<T>::type &steps) const {
-		T tmp = m_oRegBackend.get<T>(m_uOffset);
+		T tmp = this->get();
 		return tmp << steps;
 	}
 
 	RegisterBase<T> operator<<=(const T &steps) {
-		T tmp = m_oRegBackend.get<T>(m_uOffset);
+		T tmp = this->get();
 		tmp <<= steps;
-		m_oRegBackend.set(m_uOffset, tmp);
+		this->set(tmp);
 		return *this;
 	}
 	
 	T operator>>(const T &steps) const {
-		T tmp = m_oRegBackend.get<T>(m_uOffset);
+		T tmp = this->get();
 		return tmp >> steps;
 	}
 	
 	T operator>>(const typename std::make_signed<T>::type &steps) const {
-		T tmp = m_oRegBackend.get<T>(m_uOffset);
+		T tmp = this->get();
 		return tmp >> steps;
 	}
 
 	RegisterBase<T> operator>>=(const T &steps) {
-		T tmp = m_oRegBackend.get<T>(m_uOffset);
+		T tmp = this->get();
 		tmp >>= steps;
-		m_oRegBackend.set(m_uOffset, tmp);
+		this->set(tmp);
 		return *this;
 	}
 
 	T operator!() const {
-		return  !m_oRegBackend.get<T>(m_uOffset);
+		return !this->get();
 	}
 
 	bool operator==(const T &right) const {
-		return m_oRegBackend.get<T>(m_uOffset) == right;
+		return this->get() == right;
 	}
 
-	bool operator==(const typename std::make_signed<T>::type &right) const {
-		return m_oRegBackend.get<T>(m_uOffset) == right;
-	}
+	//bool operator==(const typename std::make_signed<T>::type &right) const {
+	//	return this->get() == right;
+	//}
 	
 	bool operator!=(const T &right) const {
-		return m_oRegBackend.get<T>(m_uOffset) != right;
+		return this->get() != right;
 	}
 
-	bool operator!=(const typename std::make_signed<T>::type &right) const {
-		return m_oRegBackend.get<T>(m_uOffset) != right;
-	}
+	//bool operator!=(const typename std::make_signed<T>::type &right) const {
+	//	return this->get() != right;
+	//}
 	
 	operator T() {
-		return m_oRegBackend.get<T>(m_uOffset);
+		return this->get();
 	}
 
 	T operator[](const char *string) {
@@ -183,10 +193,10 @@ public:
 	}
 
 	// some helper functions
-	T set(const T &mask) {
+	T apply(const T &mask) {
 		return this->operator|=(mask);
 	}
-	T unset(const T &mask) {
+	T clear(const T &mask) {
 		return this->operator&=(~mask);
 	}
 	bool is_set(const T &mask) const {
@@ -237,6 +247,7 @@ protected:
 	std::map<std::string, T>	m_oBitmasks;
 	T				m_uBusyMask;
 	T				m_uReadyMask;
+	T				m_uAccessMask;
 
 	friend std::ostream& operator<<(std::ostream& os, const RegisterBase<T>& obj) {
 		os << (T)obj;

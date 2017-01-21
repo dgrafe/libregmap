@@ -41,17 +41,17 @@ BOOST_AUTO_TEST_CASE(comparison_test){
 	auto testreg = test.get<regmap::Register32_t>("test3");
 	auto testreg2 = test.get<regmap::Register32_t>("bitmask_test");
 	
-	testreg = 0xAFFE;
-	BOOST_CHECK(testreg == 0xAFFE);
-	BOOST_CHECK(0xAFFE == testreg);
+	testreg = 0xAFFEu;
+	BOOST_CHECK(testreg == 0xAFFEu);
+	BOOST_CHECK(0xAFFEu == testreg);
 
-	testreg2 = 0xAFFE;
+	testreg2 = 0xAFFEu;
 	BOOST_CHECK(testreg == testreg2);
 	BOOST_CHECK(testreg2 == testreg);
 
-	testreg2 = 0xDEAD;
-	BOOST_CHECK(testreg != 0xDEAD);
-	BOOST_CHECK(0xDEAD != testreg);
+	testreg2 = 0xDEADu;
+	BOOST_CHECK(testreg != 0xDEADu);
+	BOOST_CHECK(0xDEADu != testreg);
 
 	BOOST_CHECK(testreg != testreg2);
 	BOOST_CHECK(testreg2 != testreg);

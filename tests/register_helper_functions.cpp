@@ -12,9 +12,9 @@ BOOST_AUTO_TEST_CASE(set_unset_is_set){
 
 		testreg = 0xAFFE;
 		BOOST_CHECK_EQUAL(testreg, 0xAFFE);
-		BOOST_CHECK_EQUAL(testreg.set(0xFFFF0001), 0xFFFFAFFF);
+		BOOST_CHECK_EQUAL(testreg.apply(0xFFFF0001), 0xFFFFAFFF);
 		BOOST_CHECK(testreg.is_set(0xFFFF0001));
-		BOOST_CHECK_EQUAL(testreg.unset(0xFFFF0001), 0xAFFE);
+		BOOST_CHECK_EQUAL(testreg.clear(0xFFFF0001), 0xAFFE);
 		BOOST_CHECK_EQUAL(testreg, 0xAFFE);
 }
 

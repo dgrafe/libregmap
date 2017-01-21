@@ -69,17 +69,18 @@ private:
 			unsigned int size = static_cast<unsigned int>(strtoul(node.second.get<std::string>("size").c_str(), NULL, 0));
 			unsigned int busy_mask = static_cast<unsigned int>(strtoul(node.second.get<std::string>("busy_mask", "0").c_str(), NULL, 0));
 			unsigned int ready_mask = static_cast<unsigned int>(strtoul(node.second.get<std::string>("ready_mask", "0").c_str(), NULL, 0));
+			unsigned int access_mask = static_cast<unsigned int>(strtoul(node.second.get<std::string>("access_mask", "0xFFFFFFFF").c_str(), NULL, 0));
 			switch (size) {
 				case 1:
-				m_oRegisters[key] = Register8_t(key, m_oRegBackend, offset, static_cast<std::uint8_t>(busy_mask), static_cast<std::uint8_t>(ready_mask));
+				m_oRegisters[key] = Register8_t(key, m_oRegBackend, offset, static_cast<std::uint8_t>(busy_mask), static_cast<std::uint8_t>(ready_mask), static_cast<std::uint8_t>(access_mask));
 				break;
 
 				case 2:
-				m_oRegisters[key] = Register16_t(key, m_oRegBackend, offset, static_cast<std::uint16_t>(busy_mask), static_cast<std::uint16_t>(ready_mask));
+				m_oRegisters[key] = Register16_t(key, m_oRegBackend, offset, static_cast<std::uint16_t>(busy_mask), static_cast<std::uint16_t>(ready_mask), static_cast<std::uint16_t>(access_mask));
 				break;
 
 				case 4:
-				m_oRegisters[key] = Register32_t(key, m_oRegBackend, offset, static_cast<std::uint32_t>(busy_mask), static_cast<std::uint32_t>(ready_mask));
+				m_oRegisters[key] = Register32_t(key, m_oRegBackend, offset, static_cast<std::uint32_t>(busy_mask), static_cast<std::uint32_t>(ready_mask), static_cast<std::uint32_t>(access_mask));
 				break;
 
 				default:

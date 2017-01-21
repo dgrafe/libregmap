@@ -26,6 +26,11 @@
 				"ALL_UNSET": "0",
 				"124": "7"
 			}
+		},
+		"access_mask_test": {
+			"offset": "11",
+			"size": "2",
+			"access_mask": "0x00FF"
 		}
 	}
 }
