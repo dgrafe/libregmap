@@ -1,0 +1,39 @@
+{
+	"registers": {
+		"Seconds": {
+			"size": "1",
+			"offset": "0x03",
+			"access_mask": "0x7F"
+		},
+		"Minutes": {
+			"size": "1",
+			"offset": "0x04",
+			"access_mask": "0x7F"
+		},
+		"Hours": {
+			"size": "1",
+			"offset": "0x05",
+			"access_mask": "0x3F"
+		},
+		"Days": {
+			"size": "1",
+			"offset": "0x06",
+			"access_mask": "0x3F"
+		},
+		"Weekdays": {
+			"size": "1",
+			"offset": "0x07",
+			"access_mask": "0x03"
+		},
+		"Months": {
+			"size": "1",
+			"offset": "0x08",
+			"access_mask": "0x1F"
+		},
+		"Years": {
+			"size": "1",
+			"offset": "0x09",
+			"access_mask": "0xFF"
+		}
+	}
+}
