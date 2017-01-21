@@ -14,11 +14,33 @@
  * along with libregmap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __libregmap__
-#define __libregmap__
+#ifndef __REGMAP_COMVERSIONS__
+#define __REGMAP_CONVERSIONS__
 
-#include "pci.hpp"
-#include "i2c.hpp"
-#include "regmap_conversions.hpp"
+#include <cstdint>
+
+namespace regmap { namespace bcd {
+
+template <class T>
+static inline T to_dec(const T& value) {
+	return (value) ? ((to_dec(value >> 4) * 10) + (value % 16)) : 0;
+}
+
+template <class T>
+static inline T to_bcd(const T& value) {
+	return (value) ? ((to_bcd(value / 10) << 4) + (value % 10)) : 0;
+}
+
+template <class T>
+static inline T to_dec(const regmap::RegisterBase<T>& obj) {
+	return to_dec(static_cast<T>(obj));
+}
+
+template <class T>
+static inline T to_bcd(const regmap::RegisterBase<T>& obj) {
+	return to_bcd(static_cast<T>(obj));
+}
+
+}};
 
 #endif
