@@ -23,8 +23,11 @@
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/ioctl.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <linux/i2c-dev.h>
+#include <linux/i2c.h>
 
 namespace regmap {
 
@@ -105,6 +108,63 @@ private:
 
 	BackendFile_t	m_pFile;
 	size_t		m_uSize;
+};
+
+class RegBackendI2CDev : public IRegBackend {
+
+public:
+	RegBackendI2CDev() {}
+	RegBackendI2CDev(BackendFile_t file, unsigned char slave_addr)
+	: m_pFile(file), m_uSlaveAddr(slave_addr) {}
+
+private:
+	void write(unsigned int offset, void* value, size_t size) {
+
+		unsigned char outbuf[size+1];
+		struct i2c_rdwr_ioctl_data packets;
+		struct i2c_msg messages[1];
+
+		messages[0].addr  = m_uSlaveAddr;
+		messages[0].flags = 0;
+		messages[0].len   = sizeof(outbuf);
+		messages[0].buf   = outbuf;
+
+		outbuf[0] = offset;
+		memcpy(&outbuf[1], value, size);
+
+		packets.msgs  = messages;
+		packets.nmsgs = 1;
+
+		if (ioctl(*m_pFile, I2C_RDWR, &packets) < 0) 
+			throw std::runtime_error("Write to the i2c dev unsuccessful");
+	}
+
+	void read(unsigned int offset, void* value, size_t size) {
+
+		unsigned char outbuf;
+		struct i2c_rdwr_ioctl_data packets;
+		struct i2c_msg messages[2];
+
+		outbuf=offset;
+		messages[0].addr  = m_uSlaveAddr;
+		messages[0].flags = 0;
+		messages[0].len   = sizeof(outbuf);
+		messages[0].buf   = &outbuf;
+
+		messages[1].addr  = m_uSlaveAddr;
+		messages[1].flags = I2C_M_RD/* | I2C_M_NOSTART*/;
+		messages[1].len   = size;
+		messages[1].buf   = static_cast<unsigned char*>(value);
+
+		packets.msgs      = messages;
+		packets.nmsgs     = 2;
+
+		if (ioctl(*m_pFile, I2C_RDWR, &packets) < 0) 
+			throw std::runtime_error("Read on the i2c dev unsuccessful");
+	}
+
+	BackendFile_t	m_pFile;
+	unsigned char	m_uSlaveAddr;
 };
 
 };
