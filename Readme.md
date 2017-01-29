@@ -154,3 +154,107 @@ PCF8523 Time: 2017-01-21 16:50:13
 System  Time: 2017-01-21 16:50:13
 ```
 
+### Profiling the Multi-Mode DDR controller on the i.MX6
+* The MMDC can count memmory accesses and throughput, per subsystem or combined
+* Profiling counters are running for a user defined period of time. We are measuring for one second
+* The first control register starts/stops/resets the profiling
+* The second control register applies the subsystem filter
+* The status registers represent the differtent hardware counters
+* We are accessing the register map at physical addresses via devmem
+
+Register definition file:
+``` json
+{
+	"registers": {
+		"MMDC1_CR0": {
+			"size": "4",
+			"offset": "0x410",
+			"reset_mask": "0x2",
+			"start_mask": "0x1",
+			"freeze_mask": "0x4"
+		},
+		"MMDC1_CR1": {
+			"size": "4",
+			"offset": "0x414",
+			"bitmasks": {
+				"FILTER_ALL":  "0x00000000",
+				"FILTER_IPU1": "0x3FE70004",
+				"FILTER_PCIE": "0x303F001B"
+			}
+		},
+		"MMDC1_SR0": {
+			"size": "4",
+			"offset": "0x418"
+		},
+		"MMDC1_SR1": {
+			"size": "4",
+			"offset": "0x41C"
+		},
+		"MMDC1_SR2": {
+			"size": "4",
+			"offset": "0x420"
+		},
+		"MMDC1_SR3": {
+			"size": "4",
+			"offset": "0x424"
+		},
+		"MMDC1_SR4": {
+			"size": "4",
+			"offset": "0x428"
+		},
+		"MMDC1_SR5": {
+			"size": "4",
+			"offset": "0x42C"
+		}
+	}
+}
+```
+
+The minimal demo program profiling just one channel, no subsystem filter applied:
+``` c++
+
+#include <iostream>
+#include <thread>
+#include "regmap.hpp"
+
+int main(int argc, char** argv) {
+
+  // mapping the MMDC registers via devmem, phys. addresses as documented
+  regmap::devmem::DevMem registers(0x21B0000, 0x21B3FFF, "mmdc.json");
+
+  auto MMDC_CTRL0 = registers.get<regmap::Register32_t>("MMDC1_CR0");
+  auto MMDC_CTRL1 = registers.get<regmap::Register32_t>("MMDC1_CR1");
+  auto MMDC_STAT0 = registers.get<regmap::Register32_t>("MMDC1_SR0");
+  auto MMDC_STAT1 = registers.get<regmap::Register32_t>("MMDC1_SR1");
+  auto MMDC_STAT4 = registers.get<regmap::Register32_t>("MMDC1_SR4");
+  auto MMDC_STAT5 = registers.get<regmap::Register32_t>("MMDC1_SR5");
+
+  // apply a filter for profiling specific subsystems connected to the MMDC
+  MMDC_CTRL1 = MMDC_CTRL1["FILTER_ALL"];
+  //MMDC_CTRL1 = MMDC_CTRL1["FILTER_IPU1"];
+  //MMDC_CTRL1 = MMDC_CTRL1["FILTER_PCIE"];
+
+  // start profiling, count for one second and then freeze the counters
+  MMDC_CTRL0.start();
+  MMDC_CTRL0.clear_reset();
+  MMDC_CTRL0.unfreeze();
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  MMDC_CTRL0.freeze();
+
+  std::cout << "Utilization..: " << static_cast<float>(MMDC_STAT1) / static_cast<float>(MMDC_STAT0) << std::endl;
+  std::cout << "Bytes Read...: " << MMDC_STAT4 << std::endl;
+  std::cout << "Bytes Written: " << MMDC_STAT5 << std::endl;
+
+  // reset all profiling counters and stop profiling
+  MMDC_CTRL0.reset();
+  MMDC_CTRL0.stop();
+
+  return 0;
+}
+```
+```
+Utilization..: 0.00160877
+Bytes Read...: 839964
+Bytes Written: 36284
+```
+
