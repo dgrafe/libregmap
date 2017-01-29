@@ -1,0 +1,44 @@
+{
+	"registers": {
+		"MMDC1_CR0": {
+			"size": "4",
+			"offset": "0x410",
+			"reset_mask": "0x2",
+			"start_mask": "0x1",
+			"freeze_mask": "0x4"
+		},
+		"MMDC1_CR1": {
+			"size": "4",
+			"offset": "0x414",
+			"bitmasks": {
+				"FILTER_ALL":  "0x00000000",
+				"FILTER_IPU1": "0x3FE70004",
+				"FILTER_PCIE": "0x303F001B"
+			}
+		},
+		"MMDC1_SR0": {
+			"size": "4",
+			"offset": "0x418"
+		},
+		"MMDC1_SR1": {
+			"size": "4",
+			"offset": "0x41C"
+		},
+		"MMDC1_SR2": {
+			"size": "4",
+			"offset": "0x420"
+		},
+		"MMDC1_SR3": {
+			"size": "4",
+			"offset": "0x424"
+		},
+		"MMDC1_SR4": {
+			"size": "4",
+			"offset": "0x428"
+		},
+		"MMDC1_SR5": {
+			"size": "4",
+			"offset": "0x42C"
+		}
+	}
+}

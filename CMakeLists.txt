@@ -27,6 +27,11 @@ FILE(GLOB PCF8523_SOURCES "pcf8523_demo/*.cpp")
 ADD_EXECUTABLE(pcf8523_demo ${PCF8523_SOURCES})
 TARGET_LINK_LIBRARIES(pcf8523_demo libregmap-static ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
 
+# i.MX6 MMDC Profiling Demo
+FILE(GLOB MMDC_SOURCES "imx6_mmdc_profiling_demo/*.cpp")
+ADD_EXECUTABLE(imx_mmdc_demo ${MMDC_SOURCES})
+TARGET_LINK_LIBRARIES(imx_mmdc_demo libregmap-static ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
+
 # unit tests
 ENABLE_TESTING()
 FILE(GLOB TEST_SOURCES "tests/*.cpp")
