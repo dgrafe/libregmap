@@ -40,13 +40,19 @@ public:
 		unsigned int offset,
 		T busy_mask,
 		T ready_mask,
-		T access_mask)
+		T access_mask,
+		T reset_mask,
+		T start_mask,
+		T freeze_mask)
 	: m_sRegName(regName),
 	  m_oRegBackend(regBackend),
 	  m_uOffset(offset),
 	  m_uBusyMask(busy_mask),
 	  m_uReadyMask(ready_mask),
-	  m_uAccessMask(access_mask) {}
+	  m_uAccessMask(access_mask),
+	  m_uResetMask(reset_mask),
+	  m_uStartMask(start_mask),
+          m_uFreezeMask(freeze_mask) {}
 
 	const std::string& getName() {
 		return m_sRegName;
@@ -207,6 +213,30 @@ public:
 		return this->operator&(bitmask) == bitmask;
 	}
 
+	// start mask
+	T start() {
+		return this->operator|=(m_uStartMask);
+	}
+	T stop() {
+		return this->operator&=(~m_uStartMask);
+	}
+
+	// reset mask
+	T reset() {
+		return this->operator|=(m_uResetMask);
+	}
+	T clear_reset() {
+		return this->operator&=(~m_uResetMask);
+	}
+
+	// freeze mask
+	T freeze() {
+		return this->operator|=(m_uFreezeMask);
+	}
+	T unfreeze() {
+		return this->operator&=(~m_uFreezeMask);
+	}
+
 	// busy and ready mask related functions
 	void set_ready_mask(const T &mask) {
 		m_uReadyMask = mask;
@@ -248,6 +278,9 @@ protected:
 	T				m_uBusyMask;
 	T				m_uReadyMask;
 	T				m_uAccessMask;
+	T				m_uResetMask;
+	T				m_uStartMask;
+	T				m_uFreezeMask;
 
 	friend std::ostream& operator<<(std::ostream& os, const RegisterBase<T>& obj) {
 		os << (T)obj;
