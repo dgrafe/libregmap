@@ -14,12 +14,25 @@
  * along with libregmap.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __libregmap__
-#define __libregmap__
+#ifndef __REGMAP_DEVMEM__
+#define __REGMAP_DEVMEM__
 
-#include "pci.hpp"
-#include "i2c.hpp"
-#include "devmem.hpp"
-#include "regmap_conversions.hpp"
+#include "IRegBackend.hpp"
+#include "RegMapBase.hpp"
+
+namespace regmap { namespace devmem {
+
+class DevMem : public RegMapBase<RegBackendMemory> {
+
+public:
+	DevMem(std::uint32_t physStart, std::uint32_t physEnd, const std::string &defFile);
+	
+private:
+	static void munmapDeleter(void* addr, std::size_t length);
+	BackendMemory_t  m_pMemory;
+	RegBackendMemory m_oRegBackendMemory;
+};
+
+}};
 
 #endif
