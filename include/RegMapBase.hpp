@@ -35,8 +35,13 @@ class RegMapBase {
 public:
 	RegMapBase() = delete;
 	virtual ~RegMapBase() {}
-	RegMapBase(std::string defFile) {
+	RegMapBase(std::string defFile)
+        : m_sDefFile(defFile) {
 		this->createFromFile(defFile);
+	}
+
+	std::string defFile() {
+		return m_sDefFile;
 	}
 
 	template <class T>
@@ -121,6 +126,7 @@ private:
 
 protected:
 	TBackend	m_oRegBackend;
+	std::string	m_sDefFile;
 };
 
 } // endof namespace regmap
