@@ -44,6 +44,10 @@ public:
 		return m_sDefFile;
 	}
 
+	TBackend& getBackend() {
+		return m_oRegBackend;
+	}
+
 	template <class T>
 	T get(std::string key) {
 		try {
