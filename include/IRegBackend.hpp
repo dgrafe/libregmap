@@ -21,6 +21,7 @@
 #include <cstring>
 #include <stdexcept>
 #include <fstream>
+#include <limits>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -29,21 +30,22 @@
 #include <linux/i2c-dev.h>
 #include <linux/i2c.h>
 
+#include <iostream>
 namespace regmap {
 
 class IRegBackend {
 
 public:
-	IRegBackend() : m_addrOffset(0), m_dataOffset(0) {}
+	IRegBackend() : m_addrOffset(std::numeric_limits<std::uint32_t>::max()), m_dataOffset(0) {}
 
 	template <class T>
 	void set(unsigned int offset, T value) {
 
-		if (m_addrOffset == 0) {
+		if (m_addrOffset == std::numeric_limits<std::uint32_t>::max()) {
 			// direct access
 			this->write(offset, (void*)(&value), sizeof(T));
 		} else {
-			this->write(m_addrOffset, (void*)(&m_dataOffset), sizeof(T));
+			this->write(m_addrOffset, (void*)(&offset), sizeof(T));
 			this->write(m_dataOffset, (void*)(&value), sizeof(T));
 		}
 	}
@@ -52,17 +54,17 @@ public:
 	T get(unsigned int offset) {
 		T buf;
 
-		if (m_addrOffset == 0) {
+		if (m_addrOffset == std::numeric_limits<std::uint32_t>::max()) {
 			// direct access
 			this->read(offset, (void*)(&buf), sizeof(T));
 		} else {
-			this->write(m_addrOffset, (void*)(&m_dataOffset), sizeof(T));
+			this->write(m_addrOffset, (void*)(&offset), sizeof(T));
 			this->read(m_dataOffset, (void*)(&buf), sizeof(T));
 		}
 		return buf;
 	}
 
-	void setIndirection(unsigned int addrReg, unsigned int dataReg) {
+	void setIndirection(std::uint32_t addrReg, std::uint32_t dataReg) {
 
 		m_addrOffset = addrReg;
 		m_dataOffset = dataReg;
@@ -73,8 +75,8 @@ protected:
 	virtual void read(unsigned int offset, void* value, size_t size){}
 
 private:
-	unsigned int m_addrOffset;
-	unsigned int m_dataOffset;
+	std::uint32_t m_addrOffset;
+	std::uint32_t m_dataOffset;
 };
 
 typedef std::shared_ptr<void> BackendMemory_t;
@@ -115,16 +117,16 @@ public:
 private:
 	void write(unsigned int offset, void* value, size_t size) {
 		if (offset + size > m_uSize)
-			throw std::out_of_range("RegBackendFile: Given offset is out of range");
+			throw std::out_of_range("RegBackendFile: Given offset is out of range: " + std::to_string(offset));
 
 		lseek(*m_pFile, offset, SEEK_SET);
 		if (-1 == ::write(*m_pFile, value, size))
-			throw std::runtime_error("Error wrting to io mapped register");
+			throw std::runtime_error("Error writing to io mapped register");
 	}
 
 	void read(unsigned int offset, void* value, size_t size) {
 		if (offset + size > m_uSize)
-			throw std::out_of_range("RegBackenFile: Given offset is out of range");
+			throw std::out_of_range("RegBackendFile: Given offset is out of range: " + std::to_string(offset));
 
 		lseek(*m_pFile, offset, SEEK_SET);
 		if (-1 == ::read(*m_pFile, value, size))
