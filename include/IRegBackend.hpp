@@ -34,22 +34,47 @@ namespace regmap {
 class IRegBackend {
 
 public:
-	IRegBackend(){}
+	IRegBackend() : m_addrOffset(0), m_dataOffset(0) {}
 
 	template <class T>
 	void set(unsigned int offset, T value) {
-		this->write(offset, (void*)(&value), sizeof(T));
+
+		if (m_addrOffset == 0) {
+			// direct access
+			this->write(offset, (void*)(&value), sizeof(T));
+		} else {
+			this->write(m_addrOffset, (void*)(&m_dataOffset), sizeof(T));
+			this->write(m_dataOffset, (void*)(&value), sizeof(T));
+		}
 	}
+
 	template <class T>
 	T get(unsigned int offset) {
 		T buf;
-		this->read(offset, (void*)(&buf), sizeof(T));
+
+		if (m_addrOffset == 0) {
+			// direct access
+			this->read(offset, (void*)(&buf), sizeof(T));
+		} else {
+			this->write(m_addrOffset, (void*)(&m_dataOffset), sizeof(T));
+			this->read(m_dataOffset, (void*)(&buf), sizeof(T));
+		}
 		return buf;
+	}
+
+	void setIndirection(unsigned int addrReg, unsigned int dataReg) {
+
+		m_addrOffset = addrReg;
+		m_dataOffset = dataReg;
 	}
 
 protected:
 	virtual void write(unsigned int offset, void* value, size_t size){}
 	virtual void read(unsigned int offset, void* value, size_t size){}
+
+private:
+	unsigned int m_addrOffset;
+	unsigned int m_dataOffset;
 };
 
 typedef std::shared_ptr<void> BackendMemory_t;
@@ -94,7 +119,7 @@ private:
 
 		lseek(*m_pFile, offset, SEEK_SET);
 		if (-1 == ::write(*m_pFile, value, size))
-			throw std::runtime_error("Error reading io mapped register");
+			throw std::runtime_error("Error wrting to io mapped register");
 	}
 
 	void read(unsigned int offset, void* value, size_t size) {
